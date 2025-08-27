@@ -63,19 +63,24 @@ class Bot:
         
         if (resp['ok']):
             for i in resp['result']:
+                
                 try:
                     Bot.__chat_room[i['message']['chat']['id']] = i['message']['chat']['username']      # set id and username
                 except:
-                    try:
-                        Bot.__chat_room[i['message']['chat']['id']] = i['message']['chat']['first_name']
-                    except Exception as has_delete:
+                    if (i['message']['chat']['type'] == 'supergroup'):
+                        Bot.__chat_room[i['message']['chat']['id']] = i['message']['chat']['title']      # set id by group name                        
+                    else:
                         try:
-                            if (i['my_chat_member']['new_chat_member']['status'] == 'kicked'):
-                                del Bot.__chat_room[i['my_chat_member']['chat']['id']]
-                            else:
-                                Bot.__chat_room[i['my_chat_member']['chat']['id']] = Bot.__chat_room[i['my_chat_member']['chat']['first_name']]
-                        except:
-                            pass
+                            Bot.__chat_room[i['message']['chat']['id']] = i['message']['chat']['first_name']
+                        except Exception as has_delete:
+                            try:
+                                if (i['my_chat_member']['new_chat_member']['status'] == 'kicked'):
+                                    del Bot.__chat_room[i['my_chat_member']['chat']['id']]
+                                else:
+                                    Bot.__chat_room[i['my_chat_member']['chat']['id']] = Bot.__chat_room[i['my_chat_member']['chat']['first_name']]
+                            except:
+                                pass
+            
                     
                 
     @staticmethod
