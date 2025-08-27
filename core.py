@@ -64,23 +64,29 @@ class Bot:
         if (resp['ok']):
             for i in resp['result']:
                 
+                # Checking first key (message/my_chat_member)
                 try:
-                    Bot.__chat_room[i['message']['chat']['id']] = i['message']['chat']['username']      # set id and username
-                except:
-                    if (i['message']['chat']['type'] == 'supergroup'):
-                        Bot.__chat_room[i['message']['chat']['id']] = i['message']['chat']['title']      # set id by group name                        
+                    
+                    if (i['message']['chat']['type'] == 'supergroup' or i['message']['chat']['type'] == 'group'):
+                        Bot.__chat_room[i['message']['chat']['id']] = i['message']['chat']['title']             # Group using title of group
                     else:
                         try:
-                            Bot.__chat_room[i['message']['chat']['id']] = i['message']['chat']['first_name']
-                        except Exception as has_delete:
-                            try:
-                                if (i['my_chat_member']['new_chat_member']['status'] == 'kicked'):
-                                    del Bot.__chat_room[i['my_chat_member']['chat']['id']]
-                                else:
-                                    Bot.__chat_room[i['my_chat_member']['chat']['id']] = Bot.__chat_room[i['my_chat_member']['chat']['first_name']]
-                            except:
-                                pass
+                            Bot.__chat_room[i['message']['chat']['id']] = i['message']['chat']['username']      # Private Has username
+                        except:
+                            Bot.__chat_room[i['message']['chat']['id']] = i['message']['chat']['first_name']    # Private Using First Name
+                                
+                except:
+                    
+                    try:
+                        if (i['my_chat_member']['new_chat_member']['status'] == 'kicked'):
+                            del Bot.__chat_room[i['my_chat_member']['chat']['id']]
+                        else:
+                            if (i['my_chat_member']['chat']['type'] == 'group' or i['my_chat_member']['chat']['type'] == 'supergroup' ):
+                                Bot.__chat_room[i['my_chat_member']['chat']['id']] = i['my_chat_member']['chat']['title']
+                    except:
+                        print(i)
             
+        print(Bot.__chat_room)
                     
                 
     @staticmethod
